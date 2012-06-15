@@ -9,6 +9,10 @@ void testApp::setup(){
 	ofxiPhoneAlerts.addListener(this);
 	
 	ofBackground(127,127,127);
+
+    NSURL *url = [NSURL URLWithString:@"http://www.google.com"];
+    webviewController.showAnimatedWithUrlAndFrameAndToolbar(NO, url, CGRectMake(20, 20, 280, 440), NO);
+
 }
 
 //--------------------------------------------------------------

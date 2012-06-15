@@ -20,10 +20,12 @@ class ofxiPhoneWebViewController {
     
 public:
     void showAnimatedWithUrl(BOOL animated, NSURL *url);
+    void showAnimatedWithUrlAndFrameAndToolbar(BOOL animated, NSURL *url, CGRect frame, BOOL addToolbar);
+    
     void hideAnimated(BOOL animated);
     
 private:
-    void createView();
+    void createView(BOOL addToolbar, CGRect frame);
     UIView *_view;
     UIWebView *_webView;
     ofxiPhoneWebViewDelegate *_delegate;
