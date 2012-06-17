@@ -62,6 +62,7 @@ void ofxiPhoneWebViewController::hideAnimated(BOOL animated){
 
 //--------------------------------------------------------------
 void ofxiPhoneWebViewController::loadNewUrl(NSURL *url) {
+    [[NSURLCache sharedURLCache] removeAllCachedResponses];
     [_webView loadRequest:[NSURLRequest requestWithURL:url]];
 }
 
@@ -92,6 +93,9 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame){
                                                            withToolbar ? _view.bounds.size.height - 44 : _view.bounds.size.height)];
     [_view addSubview:_webView];
     _webView.delegate = _delegate;
+    
+    _view.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    _webView.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 }
 
 

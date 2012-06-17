@@ -23,6 +23,7 @@ void testApp::setup(){
     label.text = @"Double tap to open fullscreen";
     label.backgroundColor = [UIColor clearColor];
     label.textAlignment = UITextAlignmentCenter;
+    label.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
     [ofxiPhoneGetGLView() addSubview:label];
 }
 
@@ -107,7 +108,28 @@ void testApp::gotMemoryWarning(){
 
 //--------------------------------------------------------------
 void testApp::deviceOrientationChanged(int newOrientation){
-
+    float rotation = 0;
+    switch (newOrientation) {
+        case 1:
+            rotation = 0;
+            break;
+        case 2:
+            rotation = PI;
+            break;
+        case 3:
+            rotation = PI / 2.0;
+            break;
+        case 4:
+            rotation = -PI / 2.0;
+            break;
+            
+        default:
+            break;
+    }
+    [UIView animateWithDuration:0.5 animations:^{
+        ofxiPhoneGetGLView().transform = CGAffineTransformMakeRotation(rotation);
+        ofxiPhoneGetGLView().frame = CGRectMake(0, 0, 320, 480);;
+    }];
 }
 
 
