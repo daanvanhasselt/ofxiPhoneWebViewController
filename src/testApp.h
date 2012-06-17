@@ -24,8 +24,11 @@ public:
 	void gotMemoryWarning();
 	void deviceOrientationChanged(int newOrientation);
 
-    ofxiPhoneWebViewController webviewController;
+    ofxiPhoneWebViewController inlineWebViewController;
+    ofxiPhoneWebViewController fullscreenWebViewController;
     void webViewEvent(ofxiPhoneWebViewControllerEventArgs &args);
+    
+    void openFullscreen();
 };
 
 

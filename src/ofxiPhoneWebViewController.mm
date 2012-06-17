@@ -12,7 +12,7 @@
 ///-------------------------------------------------
 /// c++ OF class
 ///-------------------------------------------------
-#pragma mark - c++ OF class
+#pragma mark - C++ OF class
 
 //--------------------------------------------------------------
 void ofxiPhoneWebViewController::showAnimatedWithUrl(BOOL animated, NSURL *url){
@@ -61,6 +61,13 @@ void ofxiPhoneWebViewController::hideAnimated(BOOL animated){
 }
 
 //--------------------------------------------------------------
+void ofxiPhoneWebViewController::loadNewUrl(NSURL *url) {
+    [_webView loadRequest:[NSURLRequest requestWithURL:url]];
+}
+
+#pragma mark Private
+
+//--------------------------------------------------------------
 void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame){
     // init view
     _view = [[UIView alloc] initWithFrame:frame];
@@ -88,7 +95,7 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame){
 }
 
 
-#pragma mark callbacks
+#pragma mark Callbacks
 //--------------------------------------------------------------
 void ofxiPhoneWebViewController::didStartLoad() {
     ofxiPhoneWebViewControllerEventArgs args = ofxiPhoneWebViewControllerEventArgs(_webView.request.URL, ofxiPhoneWebViewStateDidStartLoading, nil);
@@ -110,7 +117,7 @@ void ofxiPhoneWebViewController::didFailLoad(NSError *error) {
 ///-------------------------------------------------
 /// obj-c webview delegate
 ///-------------------------------------------------
-#pragma mark - obj-c webview delegate
+#pragma mark - Obj-c WebView Delegate
 
 @implementation ofxiPhoneWebViewDelegate
 

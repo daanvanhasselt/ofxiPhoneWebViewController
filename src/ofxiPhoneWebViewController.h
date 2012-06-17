@@ -57,6 +57,8 @@ public:
     
     void hideAnimated(BOOL animated);
     
+    void loadNewUrl(NSURL *url);
+    
     ofEvent<ofxiPhoneWebViewControllerEventArgs> event;
     
     /**
@@ -66,7 +68,7 @@ public:
     void didFinishLoad();
     void didFailLoad(NSError *error);
     
-//private:
+private:
     void createView(BOOL addToolbar, CGRect frame);
     UIView *_view;
     UIWebView *_webView;

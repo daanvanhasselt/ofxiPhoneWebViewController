@@ -12,8 +12,17 @@ void testApp::setup(){
 
     NSURL *url = [NSURL URLWithString:@"http://www.openframeworks.cc"];
 //    NSURL *url = [NSURL URLWithString:@"fdsajiofas0F#ARfs a"];        // this will fail to load
-    webviewController.showAnimatedWithUrlAndFrameAndToolbar(NO, url, CGRectMake(20, 20, 280, 440), NO);
-    ofAddListener(webviewController.event, this, &testApp::webViewEvent);
+
+    inlineWebViewController.showAnimatedWithUrlAndFrameAndToolbar(NO, url, CGRectMake(20, 20, 280, 400), NO);
+    ofAddListener(inlineWebViewController.event, this, &testApp::webViewEvent);
+    ofAddListener(fullscreenWebViewController.event, this, &testApp::webViewEvent);
+    
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 200, 40)];
+    label.center = CGPointMake(ofxiPhoneGetGLView().bounds.size.width / 2.0, ofxiPhoneGetGLView().bounds.size.height - 30);
+    label.text = @"Double tap";
+    label.backgroundColor = [UIColor clearColor];
+    label.textAlignment = UITextAlignmentCenter;
+    [ofxiPhoneGetGLView() addSubview:label];
 }
 
 //--------------------------------------------------------------
@@ -62,7 +71,7 @@ void testApp::touchUp(ofTouchEventArgs &touch){
 //--------------------------------------------------------------
 void testApp::touchDoubleTap(ofTouchEventArgs &touch){
     NSURL *url = [NSURL URLWithString:@"http://www.google.com"];
-    webviewController.showAnimatedWithUrl(YES, url);
+    fullscreenWebViewController.showAnimatedWithUrl(YES, url);
 }
 
 //--------------------------------------------------------------
