@@ -9,6 +9,7 @@ void testApp::setup(){
 	ofxiPhoneAlerts.addListener(this);
 	
 	ofBackground(127,127,127);
+    doubleTapCount = 0;
 
     NSURL *url = [NSURL URLWithString:@"http://www.openframeworks.cc"];
 //    NSURL *url = [NSURL URLWithString:@"fdsajiofas0F#ARfs a"];        // this will fail to load
@@ -17,9 +18,9 @@ void testApp::setup(){
     ofAddListener(inlineWebViewController.event, this, &testApp::webViewEvent);
     ofAddListener(fullscreenWebViewController.event, this, &testApp::webViewEvent);
     
-    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 200, 40)];
+    label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, ofxiPhoneGetGLView().bounds.size.width, 40)];
     label.center = CGPointMake(ofxiPhoneGetGLView().bounds.size.width / 2.0, ofxiPhoneGetGLView().bounds.size.height - 30);
-    label.text = @"Double tap";
+    label.text = @"Double tap to open fullscreen";
     label.backgroundColor = [UIColor clearColor];
     label.textAlignment = UITextAlignmentCenter;
     [ofxiPhoneGetGLView() addSubview:label];
@@ -70,8 +71,23 @@ void testApp::touchUp(ofTouchEventArgs &touch){
 
 //--------------------------------------------------------------
 void testApp::touchDoubleTap(ofTouchEventArgs &touch){
-    NSURL *url = [NSURL URLWithString:@"http://www.google.com"];
-    fullscreenWebViewController.showAnimatedWithUrl(YES, url);
+    if(doubleTapCount % 3 == 0){
+        NSURL *url = [NSURL URLWithString:@"http://www.google.com"];
+        fullscreenWebViewController.showAnimatedWithUrl(YES, url);
+        label.text = @"Double tap to change URL";
+    }
+    else if(doubleTapCount %3 == 1){
+        NSURL *url = [NSURL URLWithString:@"http://www.google.com"];
+        inlineWebViewController.loadNewUrl(url);
+        label.text = @"Double tap to change URL back";
+    }
+    else {
+        NSURL *url = [NSURL URLWithString:@"http://www.openframeworks.cc"];
+        inlineWebViewController.loadNewUrl(url);
+        label.text = @"Double tap to change open fullscreen";
+    }
+
+    doubleTapCount ++;
 }
 
 //--------------------------------------------------------------

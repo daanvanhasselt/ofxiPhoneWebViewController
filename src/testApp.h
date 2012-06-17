@@ -29,6 +29,9 @@ public:
     void webViewEvent(ofxiPhoneWebViewControllerEventArgs &args);
     
     void openFullscreen();
+    
+    int doubleTapCount;
+    UILabel *label;
 };
 
 
