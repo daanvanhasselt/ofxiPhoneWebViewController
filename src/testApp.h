@@ -24,8 +24,8 @@ public:
 	void gotMemoryWarning();
 	void deviceOrientationChanged(int newOrientation);
 
-    
     ofxiPhoneWebViewController webviewController;
+    void webViewEvent(ofxiPhoneWebViewControllerEventArgs &args);
 };
 
 

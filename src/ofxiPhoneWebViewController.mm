@@ -12,7 +12,7 @@
 ///-------------------------------------------------
 /// c++ OF class
 ///-------------------------------------------------
-
+#pragma mark - c++ OF class
 
 //--------------------------------------------------------------
 void ofxiPhoneWebViewController::showAnimatedWithUrl(BOOL animated, NSURL *url){
@@ -87,9 +87,30 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame){
     _webView.delegate = _delegate;
 }
 
+
+#pragma mark callbacks
+//--------------------------------------------------------------
+void ofxiPhoneWebViewController::didStartLoad() {
+    ofxiPhoneWebViewControllerEventArgs args = ofxiPhoneWebViewControllerEventArgs(_webView.request.URL, ofxiPhoneWebViewStateDidStartLoading, nil);
+    ofNotifyEvent(event, args, this);
+}
+
+//--------------------------------------------------------------
+void ofxiPhoneWebViewController::didFinishLoad() {
+    ofxiPhoneWebViewControllerEventArgs args = ofxiPhoneWebViewControllerEventArgs(_webView.request.URL, ofxiPhoneWebViewStateDidFinishLoading, nil);
+    ofNotifyEvent(event, args, this);
+}
+
+//--------------------------------------------------------------
+void ofxiPhoneWebViewController::didFailLoad(NSError *error) {
+    ofxiPhoneWebViewControllerEventArgs args = ofxiPhoneWebViewControllerEventArgs(_webView.request.URL, ofxiPhoneWebViewStateDidFailLoading, error);
+    ofNotifyEvent(event, args, this);
+}
+
 ///-------------------------------------------------
 /// obj-c webview delegate
 ///-------------------------------------------------
+#pragma mark - obj-c webview delegate
 
 @implementation ofxiPhoneWebViewDelegate
 
@@ -100,19 +121,19 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame){
 }
 
 //
-// UIWebviewDelegate methods below
+// UIWebviewDelegate methods
 //
 
 - (void)webViewDidStartLoad:(UIWebView *)webView {
-    
+    delegate->didStartLoad();
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
-    
+    delegate->didFinishLoad();
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
-    
+    delegate->didFailLoad(error);
 }
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
