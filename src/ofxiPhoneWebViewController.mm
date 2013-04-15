@@ -66,6 +66,13 @@ void ofxiPhoneWebViewController::loadNewUrl(NSURL *url) {
     [_webView loadRequest:[NSURLRequest requestWithURL:url]];
 }
 
+//--------------------------------------------------------------
+void ofxiPhoneWebViewController::loadLocalFile(NSURL *url) {
+    [[NSURLCache sharedURLCache] removeAllCachedResponses];
+    [_webView loadRequest:[NSURLRequest requestWithURL:url]];
+}
+
+
 #pragma mark Private
 
 //--------------------------------------------------------------
