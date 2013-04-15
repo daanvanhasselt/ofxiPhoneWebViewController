@@ -15,20 +15,18 @@
 #pragma mark - C++ OF class
 
 //--------------------------------------------------------------
-void ofxiPhoneWebViewController::showAnimatedWithUrl(BOOL animated, NSURL *url){
-    showAnimatedWithUrlAndFrameAndToolbar(animated, url, ofxiPhoneGetGLView().bounds, YES);
-}
-
-//--------------------------------------------------------------
-void ofxiPhoneWebViewController::showAnimatedWithUrlAndFrameAndToolbar(BOOL animated, NSURL *url, CGRect frame, BOOL addToolbar) {
+void ofxiPhoneWebViewController::createWebView(BOOL animated, CGRect frame, BOOL addToolbar, BOOL transparent, BOOL scroll) {
+    
+    //myApp = (testApp*)ofGetAppPtr();
+    
     // init delegate
     _delegate = [[ofxiPhoneWebViewDelegate alloc] init];
     _delegate.delegate = this;
     
-    createView(addToolbar, frame);           // create the view
-    [_webView loadRequest:[NSURLRequest requestWithURL:url]];
+    createView(addToolbar, frame, transparent, scroll);           // create the view
     
     _view.transform = CGAffineTransformMakeTranslation(0, _view.bounds.size.height);          // transform down
+    
     [ofxiPhoneGetGLView() addSubview:_view];     // add to main glView
     if(!animated){
         _view.transform = CGAffineTransformIdentity; // if not animated, just set transform to identity
@@ -37,6 +35,7 @@ void ofxiPhoneWebViewController::showAnimatedWithUrlAndFrameAndToolbar(BOOL anim
     [UIView animateWithDuration:0.5 animations:^{   // otherwise, animate it to identity
         _view.transform = CGAffineTransformIdentity;
     }];
+    
 }
 
 //--------------------------------------------------------------
@@ -86,11 +85,15 @@ void ofxiPhoneWebViewController::loadLocalFile(string & filename) {
 #pragma mark Private
 
 //--------------------------------------------------------------
-void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame){
+void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL transparent, BOOL scroll){
+    
+    
     // init view
     _view = [[UIView alloc] initWithFrame:frame];
     
-    //_view.backgroundColor = [UIColor whiteColor];
+    if(!transparent) {
+        _view.backgroundColor = [UIColor whiteColor];
+    }
     
     if(withToolbar){
         // add toolbar with close button and title
@@ -108,9 +111,15 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame){
                                                            withToolbar ? 44 : 0, 
                                                            _view.bounds.size.width, 
                                                            withToolbar ? _view.bounds.size.height - 44 : _view.bounds.size.height)];
-
-    _webView.opaque = false;
-    _webView.backgroundColor = [UIColor clearColor];
+    if(transparent) {
+        _webView.opaque = false;
+        _webView.backgroundColor = [UIColor clearColor];
+    }
+    
+    if(!scroll) {
+        _webView.scrollView.scrollEnabled = NO;
+        _webView.scrollView.bounces = NO;
+    }
     
     [_view addSubview:_webView];
     _webView.delegate = _delegate;
@@ -169,7 +178,17 @@ void ofxiPhoneWebViewController::didFailLoad(NSError *error) {
 }
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
-    return YES;
+    cout << "Hola desde javascript" << endl;
+    if ([[request.URL scheme] isEqual:@"yourapp"]) {
+        if ([[request.URL path] isEqual:@"buttonClicked"]) {
+            // AQUI LLAMAMOS AL METODO!!!
+            cout << "Hola desde javascript 2" << endl;
+        }
+        return NO; // Tells the webView not to load the URL
+    }
+    else {
+        return YES; // Tells the webView to go ahead and load the URL
+    }
 }
 
 @end

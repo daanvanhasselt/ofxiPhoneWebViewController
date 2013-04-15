@@ -52,8 +52,8 @@ public:
 class ofxiPhoneWebViewController {
     
 public:
-    void showAnimatedWithUrl(BOOL animated, NSURL *url);
-    void showAnimatedWithUrlAndFrameAndToolbar(BOOL animated, NSURL *url, CGRect frame, BOOL addToolbar);
+
+    void createWebView(BOOL animated, CGRect frame, BOOL addToolbar, BOOL transparent, BOOL scroll);
     
     void hideAnimated(BOOL animated);
     
@@ -70,10 +70,13 @@ public:
     void didFailLoad(NSError *error);
     
 private:
-    void createView(BOOL addToolbar, CGRect frame);
+    
+    void createView(BOOL withToolbar, CGRect frame, BOOL transparent, BOOL scroll);
     UIView *_view;
     UIWebView *_webView;
     ofxiPhoneWebViewDelegate *_delegate;
+    
+    
 };
 
 ///-------------------------------------------------
