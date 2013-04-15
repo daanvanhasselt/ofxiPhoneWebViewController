@@ -71,6 +71,7 @@ void ofxiPhoneWebViewController::loadNewUrl(NSURL *url) {
 //--------------------------------------------------------------
 void ofxiPhoneWebViewController::loadLocalFile(string & filename) {
   
+    
     NSString *path = [[NSBundle mainBundle] bundlePath];
     NSURL *baseURL = [NSURL fileURLWithPath:path];
     
