@@ -58,6 +58,7 @@ public:
     void hideAnimated(BOOL animated);
     
     void loadNewUrl(NSURL *url);
+    void loadLocalFile(string & filename);
     
     ofEvent<ofxiPhoneWebViewControllerEventArgs> event;
     

@@ -67,9 +67,16 @@ void ofxiPhoneWebViewController::loadNewUrl(NSURL *url) {
 }
 
 //--------------------------------------------------------------
-void ofxiPhoneWebViewController::loadLocalFile(NSURL *url) {
-    [[NSURLCache sharedURLCache] removeAllCachedResponses];
-    [_webView loadRequest:[NSURLRequest requestWithURL:url]];
+void ofxiPhoneWebViewController::loadLocalFile(string & filename) {
+  
+    NSString *path = [[NSBundle mainBundle] bundlePath];
+    NSURL *baseURL = [NSURL fileURLWithPath:path];
+    
+    NSString *htmlFile = [[NSBundle mainBundle] pathForResource:@"demo" ofType:@"html" inDirectory:@"www"];
+    
+    NSString* htmlString = [NSString stringWithContentsOfFile:htmlFile encoding:NSUTF8StringEncoding error:nil];
+    [_webView loadHTMLString:htmlString baseURL:baseURL];
+
 }
 
 
@@ -80,7 +87,7 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame){
     // init view
     _view = [[UIView alloc] initWithFrame:frame];
     
-    _view.backgroundColor = [UIColor whiteColor];
+    //_view.backgroundColor = [UIColor whiteColor];
     
     if(withToolbar){
         // add toolbar with close button and title
@@ -98,6 +105,10 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame){
                                                            withToolbar ? 44 : 0, 
                                                            _view.bounds.size.width, 
                                                            withToolbar ? _view.bounds.size.height - 44 : _view.bounds.size.height)];
+
+    _webView.opaque = false;
+    _webView.backgroundColor = [UIColor clearColor];
+    
     [_view addSubview:_webView];
     _webView.delegate = _delegate;
     
