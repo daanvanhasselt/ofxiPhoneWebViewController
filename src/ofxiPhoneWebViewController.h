@@ -24,24 +24,27 @@ typedef enum _ofxiPhoneWebViewState{
 
 class ofxiPhoneWebViewControllerEventArgs : public ofEventArgs
 {     
-public:
-    NSURL *url;
-    NSError *error;
-    ofxiPhoneWebViewState state;
+
+    public:
     
-	ofxiPhoneWebViewControllerEventArgs()
-    {
-        url = nil;
-        error = nil;
-        state = ofxiPhoneWebViewStateUndefined;
-    }
+        NSURL *url;
+        NSError *error;
+        ofxiPhoneWebViewState state;
     
-    ofxiPhoneWebViewControllerEventArgs(NSURL *_url, ofxiPhoneWebViewState _state, NSError *_error)
-    {
-        url = _url;
-        state = _state;
-        error = _error;
-    }
+        ofxiPhoneWebViewControllerEventArgs()
+        {
+            url = nil;
+            error = nil;
+            state = ofxiPhoneWebViewStateUndefined;
+        }
+    
+        ofxiPhoneWebViewControllerEventArgs(NSURL *_url, ofxiPhoneWebViewState _state, NSError *_error)
+        {
+            url = _url;
+            state = _state;
+            error = _error;
+        }
+    
 }; 
 
 ///-------------------------------------------------
@@ -53,9 +56,8 @@ class ofxiPhoneWebViewController {
     
 public:
 
-    void createWebView(BOOL animated, CGRect frame, BOOL addToolbar, BOOL transparent, BOOL scroll);
-    
-    void hideAnimated(BOOL animated);
+    void showView(CGRect frame, BOOL animated, BOOL addToolbar, BOOL transparent, BOOL scroll);
+    void hideView(BOOL animated);
     
     void loadNewUrl(NSURL *url);
     void loadLocalFile(string & filename);
@@ -75,7 +77,6 @@ private:
     UIView *_view;
     UIWebView *_webView;
     ofxiPhoneWebViewDelegate *_delegate;
-    
     
 };
 

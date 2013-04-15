@@ -1,5 +1,5 @@
 //
-//  ofxiPhoneWebViewController.mm
+//  ofxiPhoneWebViewControlle.mm
 //  emptyExample
 //
 //  Created by Daan van Hasselt on 5/28/12.
@@ -8,26 +8,25 @@
 
 #include "ofxiPhoneWebViewController.h"
 
-
 ///-------------------------------------------------
 /// c++ OF class
 ///-------------------------------------------------
+
 #pragma mark - C++ OF class
 
 //--------------------------------------------------------------
-void ofxiPhoneWebViewController::createWebView(BOOL animated, CGRect frame, BOOL addToolbar, BOOL transparent, BOOL scroll) {
-    
-    //myApp = (testApp*)ofGetAppPtr();
+void ofxiPhoneWebViewController::showView(CGRect frame, BOOL animated, BOOL addToolbar, BOOL transparent, BOOL scroll) {
     
     // init delegate
     _delegate = [[ofxiPhoneWebViewDelegate alloc] init];
     _delegate.delegate = this;
     
-    createView(addToolbar, frame, transparent, scroll);           // create the view
-    
-    _view.transform = CGAffineTransformMakeTranslation(0, _view.bounds.size.height);          // transform down
-    
-    [ofxiPhoneGetGLView() addSubview:_view];     // add to main glView
+    // create the view
+    createView(addToolbar, frame, transparent, scroll);
+    // transform down
+    _view.transform = CGAffineTransformMakeTranslation(0, _view.bounds.size.height);
+    // add to main glView
+    [ofxiPhoneGetGLView() addSubview:_view];    
     if(!animated){
         _view.transform = CGAffineTransformIdentity; // if not animated, just set transform to identity
         return;
@@ -39,7 +38,7 @@ void ofxiPhoneWebViewController::createWebView(BOOL animated, CGRect frame, BOOL
 }
 
 //--------------------------------------------------------------
-void ofxiPhoneWebViewController::hideAnimated(BOOL animated){
+void ofxiPhoneWebViewController::hideView(BOOL animated){
     if(animated){
         [UIView animateWithDuration:0.5 animations:^{
             _view.transform = CGAffineTransformMakeTranslation(0, _view.bounds.size.height);      // transform down
@@ -70,23 +69,22 @@ void ofxiPhoneWebViewController::loadNewUrl(NSURL *url) {
 //--------------------------------------------------------------
 void ofxiPhoneWebViewController::loadLocalFile(string & filename) {
   
+    NSString *_filename = [NSString stringWithCString:filename.c_str() encoding:[NSString defaultCStringEncoding]];
     
     NSString *path = [[NSBundle mainBundle] bundlePath];
     NSURL *baseURL = [NSURL fileURLWithPath:path];
     
-    NSString *htmlFile = [[NSBundle mainBundle] pathForResource:@"demo" ofType:@"html" inDirectory:@"www"];
-    
+    NSString *htmlFile = [[NSBundle mainBundle] pathForResource:_filename ofType:@"html" inDirectory:@"www"];
+        
     NSString* htmlString = [NSString stringWithContentsOfFile:htmlFile encoding:NSUTF8StringEncoding error:nil];
     [_webView loadHTMLString:htmlString baseURL:baseURL];
 
 }
 
-
 #pragma mark Private
 
 //--------------------------------------------------------------
 void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL transparent, BOOL scroll){
-    
     
     // init view
     _view = [[UIView alloc] initWithFrame:frame];
@@ -126,10 +124,12 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL
     
     _view.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _webView.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    
 }
 
 
 #pragma mark Callbacks
+
 //--------------------------------------------------------------
 void ofxiPhoneWebViewController::didStartLoad() {
     ofxiPhoneWebViewControllerEventArgs args = ofxiPhoneWebViewControllerEventArgs(_webView.request.URL, ofxiPhoneWebViewStateDidStartLoading, nil);
@@ -158,7 +158,7 @@ void ofxiPhoneWebViewController::didFailLoad(NSError *error) {
 @synthesize delegate;
 
 - (void)closeButtonTapped {
-    delegate->hideAnimated(YES);
+    delegate->hideView(YES);
 }
 
 //
