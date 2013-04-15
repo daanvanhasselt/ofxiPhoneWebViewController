@@ -62,8 +62,10 @@ void ofxiPhoneWebViewController::hideAnimated(BOOL animated){
 
 //--------------------------------------------------------------
 void ofxiPhoneWebViewController::loadNewUrl(NSURL *url) {
+    
     [[NSURLCache sharedURLCache] removeAllCachedResponses];
     [_webView loadRequest:[NSURLRequest requestWithURL:url]];
+    
 }
 
 //--------------------------------------------------------------
