@@ -12,4 +12,4 @@ about this fork:
 This version improves the original project with ideas from teh openFrameworks forum:
 http://forum.openframeworks.cc/index.php?topic=9326.0
 
-&& Needs I´m facing develping an Ipad Project with OF and UIWebView
+&& Needs I´m facing developing an Ipad Project with OF and UIWebView
