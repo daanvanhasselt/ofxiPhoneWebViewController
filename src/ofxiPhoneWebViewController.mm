@@ -17,23 +17,19 @@
 //--------------------------------------------------------------
 void ofxiPhoneWebViewController::showView(int frameWidth, int frameHeight, BOOL animated, BOOL addToolbar, BOOL transparent, BOOL scroll) {
     
-    // create frame
-    
-    if(isRetina()) {
-        frameWidth = frameWidth/2;
-        frameHeight = frameHeight/2;
-    }
-    
-    CGRect frame = CGRectMake(0, 0, frameWidth, frameHeight);
-    
     // init delegate
     _delegate = [[ofxiPhoneWebViewDelegate alloc] init];
     _delegate.delegate = this;
     
     // create the view
+    if(isRetina()) {
+        frameWidth = frameWidth/2;
+        frameHeight = frameHeight/2;
+    }
+    CGRect frame = CGRectMake(0, 0, frameWidth, frameHeight);
     createView(addToolbar, frame, transparent, scroll);
   
-    // add to glView (ofxiPhoneGetGLView() flashes);
+    // add to glView
     [ofxiPhoneGetGLParentView() addSubview:_view];
        
     if(animated){
@@ -51,6 +47,7 @@ void ofxiPhoneWebViewController::hideView(BOOL animated){
     if(animated){
         [UIView animateWithDuration:0.5 animations:^{
             _view.alpha = 0;
+            // TODO: Choose between slide view & alpha.
             //_view.transform = CGAffineTransformMakeTranslation( _view.bounds.size.width/2, _view.bounds.size.height);      // transform down
         } completion:^(BOOL finished) {
             [_view removeFromSuperview];
@@ -137,55 +134,57 @@ void ofxiPhoneWebViewController::loadLocalFile(string & filename) {
 //--------------------------------------------------------------
 void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL transparent, BOOL scroll){
     
-    // init view
+    ///////////////////////////////////////////////////////////////////
+    // Init view
+    ///////////////////////////////////////////////////////////////////
     _view = [[UIView alloc] initWithFrame:frame];
-    [_view setAutoresizesSubviews:YES];
-    [_view setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
-    
+    // Resize properties
+    _view.autoresizesSubviews = YES;
+    _view.autoresizingMask = UIViewAutoresizingFlexibleRightMargin |
+                             UIViewAutoresizingFlexibleBottomMargin |
+                             UIViewAutoresizingFlexibleWidth |
+                             UIViewAutoresizingFlexibleHeight;
+    // Background:
     if(!transparent) {
         _view.backgroundColor = [UIColor whiteColor];
         _view.alpha = 0.5;
     }
-
+    ///////////////////////////////////////////////////////////////////
+    // Add toolbar with close button and title:
+    ///////////////////////////////////////////////////////////////////
     if(withToolbar){
-        // add toolbar with close button and title
         UIToolbar *toolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, _view.bounds.size.width, 44)];
         UIBarButtonItem *spacer = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
         UIBarButtonItem *title = [[UIBarButtonItem alloc] initWithTitle:@"Browser" style:UIBarButtonItemStylePlain target:nil action:nil];
         UIBarButtonItem *closeButton = [[UIBarButtonItem alloc] initWithTitle:@"Close" style:UIBarButtonItemStyleDone target:_delegate action:@selector(closeButtonTapped)];
-        
         [toolbar setItems:[NSArray arrayWithObjects:spacer, title, spacer, closeButton, nil]];
         [toolbar setAutoresizesSubviews:YES];
         [toolbar setAutoresizingMask:
          UIViewAutoresizingFlexibleWidth ];
-        
         [_view addSubview:toolbar];
     }
-    
-    
-    // add webview
-    _webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 
-                                                           withToolbar ? 44 : 0, 
+    ///////////////////////////////////////////////////////////////////
+    // Add webview
+    ///////////////////////////////////////////////////////////////////
+    _webView = [[UIWebView alloc] initWithFrame:CGRectMake(0,
+                                                           withToolbar ? 44 : 0,
                                                            _view.bounds.size.width, 
                                                            withToolbar ? _view.bounds.size.height - 44 : _view.bounds.size.height)];
-
     _webView.tag = 0;
+    [_view addSubview:_webView];
+    _webView.delegate = _delegate;
+    _webView.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    // Background
     if(transparent) {
         _webView.opaque = false;
         _webView.backgroundColor = [UIColor clearColor];
     }
-    
+    // Scrollable
     if(!scroll) {
         _webView.scrollView.scrollEnabled = NO;
         _webView.scrollView.bounces = NO;
     }
-    
-    [_view addSubview:_webView];
-    _webView.delegate = _delegate;
-    
-    _view.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    _webView.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    
+
 }
 
 bool ofxiPhoneWebViewController::isRetina(){
