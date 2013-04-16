@@ -32,18 +32,18 @@ void ofxiPhoneWebViewController::showView(int frameWidth, int frameHeight, BOOL 
     
     // create the view
     createView(addToolbar, frame, transparent, scroll);
-    // transform down
-    _view.transform = CGAffineTransformMakeTranslation(0, _view.bounds.size.height);
-    // add to main glView
-    [ofxiPhoneGetGLView() addSubview:_view];    
-    if(!animated){
-        _view.transform = CGAffineTransformIdentity; // if not animated, just set transform to identity
-        return;
+  
+    // add to glView (ofxiPhoneGetGLView() flashes);
+    [ofxiPhoneGetGLParentView() addSubview:_view];
+       
+    if(animated){
+        CATransition *applicationLoadViewIn =[CATransition animation];
+        [applicationLoadViewIn setDuration:2.0];
+        [applicationLoadViewIn setType:kCATransitionReveal];
+        [applicationLoadViewIn setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+        [[_view layer]addAnimation:applicationLoadViewIn forKey:kCATransitionReveal];
     }
-    [UIView animateWithDuration:0.5 animations:^{   // otherwise, animate it to identity
-        _view.transform = CGAffineTransformIdentity;
-    }];
-    
+
 }
 
 //--------------------------------------------------------------
@@ -144,6 +144,7 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL
     
     if(!transparent) {
         _view.backgroundColor = [UIColor whiteColor];
+        _view.alpha = 0.5;
     }
 
     if(withToolbar){
@@ -160,6 +161,7 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL
         
         [_view addSubview:toolbar];
     }
+    
     
     // add webview
     _webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 
@@ -278,17 +280,20 @@ void ofxiPhoneWebViewController::didFailLoad(NSError *error) {
 }
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
-    cout << "Hola desde javascript" << endl;
-    if ([[request.URL scheme] isEqual:@"yourapp"]) {
-        if ([[request.URL path] isEqual:@"buttonClicked"]) {
-            // AQUI LLAMAMOS AL METODO!!!
-            cout << "Hola desde javascript 2" << endl;
+    
+    if ([[request.URL scheme] isEqual:@"of"]) {
+        // We can call to an internal function from here:
+        // TODO: Use pathComponents instead of host to get variables.
+        cout << [[request.URL host] UTF8String] << endl;
+        if ([[request.URL host] isEqual:@"closeWindow"]) {
+            delegate->hideView(YES);
         }
         return NO; // Tells the webView not to load the URL
     }
     else {
         return YES; // Tells the webView to go ahead and load the URL
     }
+    
 }
 
 @end
