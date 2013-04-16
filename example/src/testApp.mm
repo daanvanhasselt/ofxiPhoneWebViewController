@@ -9,20 +9,16 @@ void testApp::setup(){
 	iPhoneSetOrientation(OFXIPHONE_ORIENTATION_LANDSCAPE_LEFT);
 	
 	ofBackground(127);
-    
-    // TODO: Consider screen sizes and rotation when creating the view to fit the screen.
-    inlineWebViewController.showView(CGRectMake(0, 0, ofGetWidth(), ofGetHeight()*1.5), NO, NO, YES, NO);
+
+    inlineWebViewController.showView(ofGetWindowWidth(), ofGetWindowHeight(), NO, YES, YES, NO);
+    inlineWebViewController.setOrientation(OFXIPHONE_ORIENTATION_LANDSCAPE_LEFT);
+    inlineWebViewController.setAutoRotation(false);
     
     ofAddListener(inlineWebViewController.event, this, &testApp::webViewEvent);
 
     string fileToLoad = "demo";
     inlineWebViewController.loadLocalFile(fileToLoad);
-    
-    // TODO: Size / Rotation more intuitive.
-    //       deviceOrientationChanged integrated in classs
-    ofxiPhoneGetGLView().transform = CGAffineTransformMakeRotation(PI/2.0);
-    ofxiPhoneGetGLView().frame = CGRectMake(0, 0, ofGetHeight(), ofGetWidth());
-    
+
 }
 
 //--------------------------------------------------------------
@@ -37,6 +33,7 @@ void testApp::webViewEvent(ofxiPhoneWebViewControllerEventArgs &args) {
         NSLog(@"Webview did fail to load the URL %@. Error: %@", args.url, args.error);
     }
 }
+
 //--------------------------------------------------------------
 void testApp::update(){
     
@@ -45,6 +42,10 @@ void testApp::update(){
 //--------------------------------------------------------------
 void testApp::draw(){
     
+    ofSetColor(255);
+    ofCircle(0,0,1500);
+    ofSetColor(0);
+    ofDrawBitmapString(ofToString(ofGetWindowWidth())+"/"+ofToString(ofGetWidth()), ofPoint(20,500));
 	
 }
 
@@ -96,33 +97,27 @@ void testApp::gotMemoryWarning(){
 
 //--------------------------------------------------------------
 void testApp::deviceOrientationChanged(int newOrientation){
-    float rotation = 0;
+    
+    // TODO: Better way of handling autorotation.
+    
+    if(!inlineWebViewController.autoRotation) return;
+
     switch (newOrientation) {
         case 1:
-            rotation = 0;
+            inlineWebViewController.setOrientation(OFXIPHONE_ORIENTATION_PORTRAIT);
             break;
         case 2:
-            rotation = PI;
+            inlineWebViewController.setOrientation(OFXIPHONE_ORIENTATION_UPSIDEDOWN);
             break;
         case 3:
-            rotation = PI / 2.0;
+            inlineWebViewController.setOrientation(OFXIPHONE_ORIENTATION_LANDSCAPE_LEFT);
             break;
         case 4:
-            rotation = -PI / 2.0;
+            inlineWebViewController.setOrientation(OFXIPHONE_ORIENTATION_LANDSCAPE_RIGHT);
             break;
-            
         default:
             break;
     }
-    
-    // TODO: Add rotation auto option.
-    
-    /*
-    [UIView animateWithDuration:0.5 animations:^{
-        ofxiPhoneGetGLView().transform = CGAffineTransformMakeRotation(rotation);
-        ofxiPhoneGetGLView().frame = CGRectMake(0, 0, ofGetHeight(), ofGetWidth());;
-    }];
-    */
     
 }
 
