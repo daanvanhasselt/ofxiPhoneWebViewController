@@ -29,17 +29,7 @@ class testApp : public ofxiPhoneApp{
     
         ofxiPhoneWebViewController inlineWebViewController;
         void webViewEvent(ofxiPhoneWebViewControllerEventArgs &args);
-    
-        //
-    
-        ofxiPhoneWebViewController fullscreenWebViewController;
         
-    
-    void openFullscreen();
-    
-    int doubleTapCount;
-    UILabel *label;
-    
 };
 
 

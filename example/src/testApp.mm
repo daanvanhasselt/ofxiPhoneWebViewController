@@ -10,12 +10,12 @@ void testApp::setup(){
 	
 	ofBackground(127);
 
-    inlineWebViewController.showView(ofGetWindowWidth(), ofGetWindowHeight(), NO, YES, YES, NO);
+    inlineWebViewController.showView(ofGetWindowWidth(), ofGetWindowHeight(), YES, NO, YES, NO);
     inlineWebViewController.setOrientation(OFXIPHONE_ORIENTATION_LANDSCAPE_LEFT);
     inlineWebViewController.setAutoRotation(false);
     
     ofAddListener(inlineWebViewController.event, this, &testApp::webViewEvent);
-
+    
     string fileToLoad = "demo";
     inlineWebViewController.loadLocalFile(fileToLoad);
 
@@ -43,9 +43,8 @@ void testApp::update(){
 void testApp::draw(){
     
     ofSetColor(255);
-    ofCircle(0,0,1500);
+    //ofCircle(0,0,1500);
     ofSetColor(0);
-    ofDrawBitmapString(ofToString(ofGetWindowWidth())+"/"+ofToString(ofGetWidth()), ofPoint(20,500));
 	
 }
 
@@ -66,6 +65,8 @@ void testApp::touchMoved(ofTouchEventArgs & touch){
 
 //--------------------------------------------------------------
 void testApp::touchUp(ofTouchEventArgs & touch){
+    
+    
     
 }
 

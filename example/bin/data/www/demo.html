@@ -9,20 +9,20 @@
 		</style>
 		<script type="text/javascript">
 			function buttonClicked() {
-    			window.location.href = "yourapp://buttonClicked";
+    			window.location.href = "of://closeWindow";
 			}
 		</script>
 	</head>
-	<body>
+	<body style="background-color:rgba(0,0,0,0.5);">
 		<h1>ofxiPhoneWebViewController :: demo document</h1>
-		<button type="toggle" id="toggleDebugger" onClick="javascript:buttonClicked();">TEST BUTTON</button>
+		<button type="toggle" id="toggleDebugger" onClick="javascript:buttonClicked();">Close window button</button>
 		<br/><br/>
-		<a href='javascript:buttonClicked();'>TEST LINK</a>
-		<br/>
+		<a href='javascript:buttonClicked();'>Close window link</a>
+		<br/><br/>
 		Image:
 		<br/>
-		<img src="./www/testimg.jpg" alt="Image test"/>
-		<br/>
+		<img src="./www/testimg.jpg" alt="Image test" style="width:50%;height:auto;"/>
+		<br/><br/>
 		Youtube video:<br/>
 		<iframe title="YouTube video player" class="youtube-player" type="text/html" 
 		width="320" height="195" src="http://www.youtube.com/embed/W-Q7RMpINVo"
