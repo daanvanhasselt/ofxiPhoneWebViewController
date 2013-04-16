@@ -56,13 +56,18 @@ class ofxiPhoneWebViewController {
     
 public:
 
-    void showView(CGRect frame, BOOL animated, BOOL addToolbar, BOOL transparent, BOOL scroll);
+    void showView(int frameWidth, int frameHeight,  BOOL animated, BOOL addToolbar, BOOL transparent, BOOL scroll);
     void hideView(BOOL animated);
+    
+    void setOrientation(ofOrientation orientation);
     
     void loadNewUrl(NSURL *url);
     void loadLocalFile(string & filename);
     
     ofEvent<ofxiPhoneWebViewControllerEventArgs> event;
+    
+    bool autoRotation;
+    void setAutoRotation(bool _autoRotation);
     
     /**
      * I would prefer to make these methods private, but we can't make a obj-c class a friend of a c++ class.
@@ -77,6 +82,8 @@ private:
     UIView *_view;
     UIWebView *_webView;
     ofxiPhoneWebViewDelegate *_delegate;
+    
+    bool isRetina();
     
 };
 

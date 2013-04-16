@@ -15,7 +15,16 @@
 #pragma mark - C++ OF class
 
 //--------------------------------------------------------------
-void ofxiPhoneWebViewController::showView(CGRect frame, BOOL animated, BOOL addToolbar, BOOL transparent, BOOL scroll) {
+void ofxiPhoneWebViewController::showView(int frameWidth, int frameHeight, BOOL animated, BOOL addToolbar, BOOL transparent, BOOL scroll) {
+    
+    // create frame
+    
+    if(isRetina()) {
+        frameWidth = frameWidth/2;
+        frameHeight = frameHeight/2;
+    }
+    
+    CGRect frame = CGRectMake(0, 0, frameWidth, frameHeight);
     
     // init delegate
     _delegate = [[ofxiPhoneWebViewDelegate alloc] init];
@@ -41,7 +50,8 @@ void ofxiPhoneWebViewController::showView(CGRect frame, BOOL animated, BOOL addT
 void ofxiPhoneWebViewController::hideView(BOOL animated){
     if(animated){
         [UIView animateWithDuration:0.5 animations:^{
-            _view.transform = CGAffineTransformMakeTranslation(0, _view.bounds.size.height);      // transform down
+            _view.alpha = 0;
+            //_view.transform = CGAffineTransformMakeTranslation( _view.bounds.size.width/2, _view.bounds.size.height);      // transform down
         } completion:^(BOOL finished) {
             [_view removeFromSuperview];
             [_view release];
@@ -55,6 +65,47 @@ void ofxiPhoneWebViewController::hideView(BOOL animated){
         [_webView release];
         [_delegate release];
     }
+    
+}
+
+//--------------------------------------------------------------
+void ofxiPhoneWebViewController::setAutoRotation(bool _autoRotation){
+    
+        autoRotation = _autoRotation;
+    
+}
+
+//--------------------------------------------------------------
+void ofxiPhoneWebViewController::setOrientation(ofOrientation orientation){
+    
+    float rotation = 0;
+    int screenWidth = ofGetWindowWidth();
+    int screenHeight = ofGetWindowHeight();
+    
+    if(isRetina()) {
+        screenWidth = screenWidth/2;
+        screenHeight = screenHeight/2;
+    }
+    
+    if(orientation == OFXIPHONE_ORIENTATION_UPSIDEDOWN) {
+        rotation = PI;
+    }
+    if(orientation == OFXIPHONE_ORIENTATION_LANDSCAPE_LEFT) {
+        rotation = PI / 2.0;
+    }
+    if(orientation == OFXIPHONE_ORIENTATION_LANDSCAPE_RIGHT) {
+        rotation = -PI / 2.0;
+    }
+    
+    // Set thenchor point top-left and center
+    //_view.layer.anchorPoint = CGPointMake(0.0, 0.0);
+    //_view.center = CGPointMake(CGRectGetWidth(_view.bounds), 0.0);
+    // Rotate
+    CGAffineTransform rotationTransform = CGAffineTransformIdentity;
+    rotationTransform = CGAffineTransformRotate(rotationTransform, rotation);
+    _view.transform = rotationTransform;
+    // Resize
+    _view.frame = CGRectMake(0, 0, screenWidth, screenHeight);
     
 }
 
@@ -88,11 +139,13 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL
     
     // init view
     _view = [[UIView alloc] initWithFrame:frame];
+    [_view setAutoresizesSubviews:YES];
+    [_view setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
     
     if(!transparent) {
         _view.backgroundColor = [UIColor whiteColor];
     }
-    
+
     if(withToolbar){
         // add toolbar with close button and title
         UIToolbar *toolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, _view.bounds.size.width, 44)];
@@ -101,6 +154,10 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL
         UIBarButtonItem *closeButton = [[UIBarButtonItem alloc] initWithTitle:@"Close" style:UIBarButtonItemStyleDone target:_delegate action:@selector(closeButtonTapped)];
         
         [toolbar setItems:[NSArray arrayWithObjects:spacer, title, spacer, closeButton, nil]];
+        [toolbar setAutoresizesSubviews:YES];
+        [toolbar setAutoresizingMask:
+         UIViewAutoresizingFlexibleWidth ];
+        
         [_view addSubview:toolbar];
     }
     
@@ -109,6 +166,8 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL
                                                            withToolbar ? 44 : 0, 
                                                            _view.bounds.size.width, 
                                                            withToolbar ? _view.bounds.size.height - 44 : _view.bounds.size.height)];
+
+    _webView.tag = 0;
     if(transparent) {
         _webView.opaque = false;
         _webView.backgroundColor = [UIColor clearColor];
@@ -124,6 +183,47 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL
     
     _view.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _webView.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    
+}
+
+bool ofxiPhoneWebViewController::isRetina(){
+    
+    bool isRetina;
+    
+	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+	{
+		if ([UIScreen instancesRespondToSelector:@selector(scale)])
+		{
+			CGFloat scale = [[UIScreen mainScreen] scale];
+            
+			if (scale > 1.0)
+			{
+				// isIpad 3
+				isRetina = true;
+			} else {
+				// isIpad 1 or 2
+				isRetina = false;
+			}
+		}
+        
+	} else {
+        
+		if ([UIScreen instancesRespondToSelector:@selector(scale)])
+		{
+			CGFloat scale = [[UIScreen mainScreen] scale];
+            
+			if (scale > 1.0)
+			{
+				// iPhone Retina
+				isRetina = true;
+			} else {
+				// iPhone
+				isRetina = false;
+			}
+		}
+	}
+    
+    return isRetina;
     
 }
 
