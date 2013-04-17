@@ -120,7 +120,8 @@ void ofxiPhoneWebViewController::loadLocalFile(string & filename) {
     NSString *_filename = [NSString stringWithCString:filename.c_str() encoding:[NSString defaultCStringEncoding]];
     
     NSString *path = [[NSBundle mainBundle] bundlePath];
-    NSURL *baseURL = [NSURL fileURLWithPath:path];
+    NSString *directory_path = [path stringByAppendingString:@"/www"];
+    NSURL *baseURL = [NSURL fileURLWithPath:directory_path];
     
     NSString *htmlFile = [[NSBundle mainBundle] pathForResource:_filename ofType:@"html" inDirectory:@"www"];
         
