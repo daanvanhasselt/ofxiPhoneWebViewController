@@ -24,24 +24,27 @@ typedef enum _ofxiPhoneWebViewState{
 
 class ofxiPhoneWebViewControllerEventArgs : public ofEventArgs
 {     
-public:
-    NSURL *url;
-    NSError *error;
-    ofxiPhoneWebViewState state;
+
+    public:
     
-	ofxiPhoneWebViewControllerEventArgs()
-    {
-        url = nil;
-        error = nil;
-        state = ofxiPhoneWebViewStateUndefined;
-    }
+        NSURL *url;
+        NSError *error;
+        ofxiPhoneWebViewState state;
     
-    ofxiPhoneWebViewControllerEventArgs(NSURL *_url, ofxiPhoneWebViewState _state, NSError *_error)
-    {
-        url = _url;
-        state = _state;
-        error = _error;
-    }
+        ofxiPhoneWebViewControllerEventArgs()
+        {
+            url = nil;
+            error = nil;
+            state = ofxiPhoneWebViewStateUndefined;
+        }
+    
+        ofxiPhoneWebViewControllerEventArgs(NSURL *_url, ofxiPhoneWebViewState _state, NSError *_error)
+        {
+            url = _url;
+            state = _state;
+            error = _error;
+        }
+    
 }; 
 
 ///-------------------------------------------------
@@ -52,14 +55,19 @@ public:
 class ofxiPhoneWebViewController {
     
 public:
-    void showAnimatedWithUrl(BOOL animated, NSURL *url);
-    void showAnimatedWithUrlAndFrameAndToolbar(BOOL animated, NSURL *url, CGRect frame, BOOL addToolbar);
+
+    void showView(int frameWidth, int frameHeight,  BOOL animated, BOOL addToolbar, BOOL transparent, BOOL scroll);
+    void hideView(BOOL animated);
     
-    void hideAnimated(BOOL animated);
+    void setOrientation(ofOrientation orientation);
     
     void loadNewUrl(NSURL *url);
+    void loadLocalFile(string & filename);
     
     ofEvent<ofxiPhoneWebViewControllerEventArgs> event;
+    
+    bool autoRotation;
+    void setAutoRotation(bool _autoRotation);
     
     /**
      * I would prefer to make these methods private, but we can't make a obj-c class a friend of a c++ class.
@@ -69,10 +77,14 @@ public:
     void didFailLoad(NSError *error);
     
 private:
-    void createView(BOOL addToolbar, CGRect frame);
+    
+    void createView(BOOL withToolbar, CGRect frame, BOOL transparent, BOOL scroll);
     UIView *_view;
     UIWebView *_webView;
     ofxiPhoneWebViewDelegate *_delegate;
+    
+    bool isRetina();
+    
 };
 
 ///-------------------------------------------------
