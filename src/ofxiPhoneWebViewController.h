@@ -19,7 +19,8 @@ typedef enum _ofxiPhoneWebViewState{
     ofxiPhoneWebViewStateUndefined,
     ofxiPhoneWebViewStateDidStartLoading,
     ofxiPhoneWebViewStateDidFinishLoading,
-    ofxiPhoneWebViewStateDidFailLoading
+    ofxiPhoneWebViewStateDidFailLoading,
+    ofxiPhoneWebViewDidCloseWindow
 } ofxiPhoneWebViewState;
 
 class ofxiPhoneWebViewControllerEventArgs : public ofEventArgs
@@ -75,6 +76,7 @@ public:
     void didStartLoad();
     void didFinishLoad();
     void didFailLoad(NSError *error);
+    void didCloseWindow();
     
 private:
     

@@ -54,6 +54,7 @@ void ofxiPhoneWebViewController::hideView(BOOL animated){
             [_view release];
             [_webView release];
             [_delegate release];
+       
         }];
     }
     else{
@@ -233,6 +234,12 @@ bool ofxiPhoneWebViewController::isRetina(){
 #pragma mark Callbacks
 
 //--------------------------------------------------------------
+void ofxiPhoneWebViewController::didCloseWindow() {
+    ofxiPhoneWebViewControllerEventArgs args = ofxiPhoneWebViewControllerEventArgs(_webView.request.URL, ofxiPhoneWebViewDidCloseWindow, nil);
+    ofNotifyEvent(event, args, this);
+}
+
+//--------------------------------------------------------------
 void ofxiPhoneWebViewController::didStartLoad() {
     ofxiPhoneWebViewControllerEventArgs args = ofxiPhoneWebViewControllerEventArgs(_webView.request.URL, ofxiPhoneWebViewStateDidStartLoading, nil);
     ofNotifyEvent(event, args, this);
@@ -287,6 +294,7 @@ void ofxiPhoneWebViewController::didFailLoad(NSError *error) {
         cout << [[request.URL host] UTF8String] << endl;
         if ([[request.URL host] isEqual:@"closeWindow"]) {
             delegate->hideView(YES);
+            delegate->didCloseWindow();
         }
         return NO; // Tells the webView not to load the URL
     }
