@@ -101,3 +101,4 @@ private:
 
 @property (nonatomic, assign) ofxiPhoneWebViewController *delegate;
 @end
+

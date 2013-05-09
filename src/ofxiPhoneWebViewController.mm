@@ -296,6 +296,11 @@ void ofxiPhoneWebViewController::didFailLoad(NSError *error) {
             delegate->hideView(YES);
             delegate->didCloseWindow();
         }
+        if ([[request.URL host] isEqual:@"openinbrowser"]) {
+            NSString *url = [request.URL query];
+            NSLog(@"%@", url);
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString: [[[NSString alloc] initWithString: url] autorelease] ]];
+        }
         return NO; // Tells the webView not to load the URL
     }
     else {
