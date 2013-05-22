@@ -62,7 +62,7 @@ public:
     
     void setOrientation(ofOrientation orientation);
     
-    void loadNewUrl(NSURL *url);
+    void loadNewUrl(NSString *url);
     void loadLocalFile(string & filename);
     
     ofEvent<ofxiPhoneWebViewControllerEventArgs> event;

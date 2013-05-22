@@ -31,7 +31,7 @@ void ofxiPhoneWebViewController::showView(int frameWidth, int frameHeight, BOOL 
   
     // add to glView
     [ofxiPhoneGetGLParentView() addSubview:_view];
-       
+    
     if(animated){
         CATransition *applicationLoadViewIn =[CATransition animation];
         [applicationLoadViewIn setDuration:2.0];
@@ -50,17 +50,24 @@ void ofxiPhoneWebViewController::hideView(BOOL animated){
             // TODO: Choose between slide view & alpha.
             //_view.transform = CGAffineTransformMakeTranslation( _view.bounds.size.width/2, _view.bounds.size.height);      // transform down
         } completion:^(BOOL finished) {
-            [_view removeFromSuperview];
+            for(UIView *subview in [_view subviews]) {
+                //NSLog(@"subviews Count=%d",[[_view subviews]count]);
+                [subview release];
+                [subview removeFromSuperview];
+            }
             [_view release];
-            [_webView release];
+            [_view removeFromSuperview];
             [_delegate release];
-       
         }];
     }
     else{
-        [_view removeFromSuperview];
+        for(UIView *subview in [_view subviews]) {
+            //NSLog(@"subviews Count=%d",[[_view subviews]count]);
+            [subview release];
+            [subview removeFromSuperview];
+        }
         [_view release];
-        [_webView release];
+        [_view removeFromSuperview];
         [_delegate release];
     }
     
@@ -108,10 +115,10 @@ void ofxiPhoneWebViewController::setOrientation(ofOrientation orientation){
 }
 
 //--------------------------------------------------------------
-void ofxiPhoneWebViewController::loadNewUrl(NSURL *url) {
+void ofxiPhoneWebViewController::loadNewUrl(NSString *url) {
     
     [[NSURLCache sharedURLCache] removeAllCachedResponses];
-    [_webView loadRequest:[NSURLRequest requestWithURL:url]];
+    [_webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:url]]];
     
 }
 
@@ -149,7 +156,7 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL
     // Background:
     if(!transparent) {
         _view.backgroundColor = [UIColor whiteColor];
-        _view.alpha = 0.5;
+        _view.alpha = 1;
     }
     ///////////////////////////////////////////////////////////////////
     // Add toolbar with close button and title:
@@ -157,9 +164,13 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL
     if(withToolbar){
         UIToolbar *toolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, _view.bounds.size.width, 44)];
         UIBarButtonItem *spacer = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-        UIBarButtonItem *title = [[UIBarButtonItem alloc] initWithTitle:@"Browser" style:UIBarButtonItemStylePlain target:nil action:nil];
+        UIBarButtonItem *title = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
         UIBarButtonItem *closeButton = [[UIBarButtonItem alloc] initWithTitle:@"Close" style:UIBarButtonItemStyleDone target:_delegate action:@selector(closeButtonTapped)];
-        [toolbar setItems:[NSArray arrayWithObjects:spacer, title, spacer, closeButton, nil]];
+        NSMutableArray *items = [[NSMutableArray alloc] init];
+        [items addObject:[spacer autorelease]];
+        [items addObject:[title autorelease]];
+        [items addObject:[closeButton autorelease]];
+        [toolbar setItems:items];
         [toolbar setAutoresizesSubviews:YES];
         [toolbar setAutoresizingMask:
          UIViewAutoresizingFlexibleWidth ];
@@ -267,7 +278,7 @@ void ofxiPhoneWebViewController::didFailLoad(NSError *error) {
 @synthesize delegate;
 
 - (void)closeButtonTapped {
-    delegate->hideView(YES);
+    delegate->hideView(NO);
 }
 
 //
@@ -275,14 +286,17 @@ void ofxiPhoneWebViewController::didFailLoad(NSError *error) {
 //
 
 - (void)webViewDidStartLoad:(UIWebView *)webView {
+    if(delegate)
     delegate->didStartLoad();
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
+    if(delegate)
     delegate->didFinishLoad();
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
+    if(delegate)
     delegate->didFailLoad(error);
 }
 
