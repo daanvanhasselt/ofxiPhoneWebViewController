@@ -57,7 +57,7 @@ class ofxiPhoneWebViewController {
     
 public:
 
-    void showView(int frameWidth, int frameHeight,  BOOL animated, BOOL addToolbar, BOOL transparent, BOOL scroll);
+    void showView(int frameWidth, int frameHeight,  BOOL animated, BOOL addToolbar, BOOL transparent, BOOL scroll, BOOL useTransitionMoveIn);
     void hideView(BOOL animated);
     
     void setOrientation(ofOrientation orientation);

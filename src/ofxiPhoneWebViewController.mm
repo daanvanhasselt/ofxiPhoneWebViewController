@@ -15,7 +15,7 @@
 #pragma mark - C++ OF class
 
 //--------------------------------------------------------------
-void ofxiPhoneWebViewController::showView(int frameWidth, int frameHeight, BOOL animated, BOOL addToolbar, BOOL transparent, BOOL scroll) {
+void ofxiPhoneWebViewController::showView(int frameWidth, int frameHeight, BOOL animated, BOOL addToolbar, BOOL transparent, BOOL scroll, BOOL useTransitionMoveIn) {
     
     // init delegate
     _delegate = [[ofxiPhoneWebViewDelegate alloc] init];
@@ -33,13 +33,21 @@ void ofxiPhoneWebViewController::showView(int frameWidth, int frameHeight, BOOL 
     [ofxiPhoneGetGLParentView() addSubview:_view];
     
     if(animated){
-        CATransition *applicationLoadViewIn =[CATransition animation];
-        [applicationLoadViewIn setDuration:2.0];
-        [applicationLoadViewIn setType:kCATransitionReveal];
-        [applicationLoadViewIn setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
-        [[_view layer]addAnimation:applicationLoadViewIn forKey:kCATransitionReveal];
+        if(!useTransitionMoveIn) {
+            CATransition *applicationLoadViewIn =[CATransition animation];
+            [applicationLoadViewIn setDuration:2.5];
+            [applicationLoadViewIn setType:kCATransitionReveal];
+            [applicationLoadViewIn setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+            [[_view layer]addAnimation:applicationLoadViewIn forKey:kCATransitionReveal];
+        } else {
+            CATransition *applicationLoadViewIn =[CATransition animation];
+            [applicationLoadViewIn setDuration:1.0];
+            [applicationLoadViewIn setType:kCATransitionMoveIn];
+            [applicationLoadViewIn setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut]];
+            [[_view layer]addAnimation:applicationLoadViewIn forKey:kCATransitionMoveIn];
+        }
     }
-
+    
 }
 
 //--------------------------------------------------------------
@@ -196,6 +204,9 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL
     if(!scroll) {
         _webView.scrollView.scrollEnabled = NO;
         _webView.scrollView.bounces = NO;
+    } else {
+        _webView.scrollView.scrollEnabled = YES;
+        _webView.scrollView.bounces = YES;
     }
 
 }
@@ -278,7 +289,7 @@ void ofxiPhoneWebViewController::didFailLoad(NSError *error) {
 @synthesize delegate;
 
 - (void)closeButtonTapped {
-    delegate->hideView(NO);
+    delegate->hideView(YES);
 }
 
 //
