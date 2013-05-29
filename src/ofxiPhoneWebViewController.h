@@ -20,6 +20,7 @@ typedef enum _ofxiPhoneWebViewState{
     ofxiPhoneWebViewStateDidStartLoading,
     ofxiPhoneWebViewStateDidFinishLoading,
     ofxiPhoneWebViewStateDidFailLoading,
+    ofxiPhoneWebViewCalledExternalFunction,
     ofxiPhoneWebViewDidCloseWindow
 } ofxiPhoneWebViewState;
 
@@ -29,12 +30,14 @@ class ofxiPhoneWebViewControllerEventArgs : public ofEventArgs
     public:
     
         NSURL *url;
+        NSString *param;
         NSError *error;
         ofxiPhoneWebViewState state;
     
         ofxiPhoneWebViewControllerEventArgs()
         {
             url = nil;
+            param = nil;
             error = nil;
             state = ofxiPhoneWebViewStateUndefined;
         }
@@ -42,11 +45,20 @@ class ofxiPhoneWebViewControllerEventArgs : public ofEventArgs
         ofxiPhoneWebViewControllerEventArgs(NSURL *_url, ofxiPhoneWebViewState _state, NSError *_error)
         {
             url = _url;
+            param = nil;
             state = _state;
             error = _error;
         }
     
-}; 
+        ofxiPhoneWebViewControllerEventArgs(NSString *_param, ofxiPhoneWebViewState _state, NSError *_error)
+        {
+            url = nil;
+            param = _param;
+            state = _state;
+            error = _error;
+        }
+    
+};
 
 ///-------------------------------------------------
 /// c++ OF class
@@ -59,6 +71,7 @@ public:
 
     void showView(int frameWidth, int frameHeight,  BOOL animated, BOOL addToolbar, BOOL transparent, BOOL scroll, BOOL useTransitionMoveIn);
     void hideView(BOOL animated);
+    void reOpenView(BOOL animated, NSString *newurl);
     
     void setOrientation(ofOrientation orientation);
     
@@ -77,6 +90,8 @@ public:
     void didFinishLoad();
     void didFailLoad(NSError *error);
     void didCloseWindow();
+    
+    void callExternalFunction(string &functionName, NSString *param);
     
 private:
     

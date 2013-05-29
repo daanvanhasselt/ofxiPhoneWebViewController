@@ -279,6 +279,12 @@ void ofxiPhoneWebViewController::didFailLoad(NSError *error) {
     ofNotifyEvent(event, args, this);
 }
 
+//--------------------------------------------------------------
+void ofxiPhoneWebViewController::callExternalFunction(string &functionName, NSString *param) {
+    ofxiPhoneWebViewControllerEventArgs args = ofxiPhoneWebViewControllerEventArgs(param, ofxiPhoneWebViewCalledExternalFunction, nil);
+    ofNotifyEvent(event, args, this);
+}
+
 ///-------------------------------------------------
 /// obj-c webview delegate
 ///-------------------------------------------------
@@ -325,6 +331,14 @@ void ofxiPhoneWebViewController::didFailLoad(NSError *error) {
             NSString *url = [request.URL query];
             NSLog(@"%@", url);
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString: [[[NSString alloc] initWithString: url] autorelease] ]];
+        }
+        if ([[request.URL host] isEqual:@"callOFfunction"]) {
+            NSString *param = [request.URL query];
+            NSLog(@"%@", param);
+            // TODO: Pass function Name from html document.
+            //       This will allow to call diferent functions inside OF.
+            string fName = "default";
+            delegate->callExternalFunction(fName, param);
         }
         return NO; // Tells the webView not to load the URL
     }
