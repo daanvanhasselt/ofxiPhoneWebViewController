@@ -154,7 +154,7 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL
     ///////////////////////////////////////////////////////////////////
     // Init view
     ///////////////////////////////////////////////////////////////////
-    _view = [[UIView alloc] initWithFrame:frame];
+    _view = [[[UIView alloc] initWithFrame:frame] retain ];
     // Resize properties
     _view.autoresizesSubviews = YES;
     _view.autoresizingMask = UIViewAutoresizingFlexibleRightMargin |
