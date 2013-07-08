@@ -20,6 +20,7 @@ void ofxiPhoneWebViewController::showView(int frameWidth, int frameHeight, BOOL 
     // init delegate
     _delegate = [[ofxiPhoneWebViewDelegate alloc] init];
     _delegate.delegate = this;
+    bIsDelegateActive = true;
     
     // create the view
     if(isRetina()) {
@@ -52,12 +53,31 @@ void ofxiPhoneWebViewController::showView(int frameWidth, int frameHeight, BOOL 
 
 //--------------------------------------------------------------
 void ofxiPhoneWebViewController::hideView(BOOL animated){
+    
     if(animated){
         [UIView animateWithDuration:0.5 animations:^{
             _view.alpha = 0;
             // TODO: Choose between slide view & alpha.
             //_view.transform = CGAffineTransformMakeTranslation( _view.bounds.size.width/2, _view.bounds.size.height);      // transform down
         } completion:^(BOOL finished) {
+            if(bIsViewActive) {
+                for(UIView *subview in [_view subviews]) {
+                    //NSLog(@"subviews Count=%d",[[_view subviews]count]);
+                    [subview release];
+                    [subview removeFromSuperview];
+                }
+                [_view release];
+                [_view removeFromSuperview];
+                bIsViewActive = false;
+            }
+            if(bIsDelegateActive) {
+                [_delegate release];
+                bIsDelegateActive = false;
+            }
+        }];
+    }
+    else{
+        if(bIsViewActive) {
             for(UIView *subview in [_view subviews]) {
                 //NSLog(@"subviews Count=%d",[[_view subviews]count]);
                 [subview release];
@@ -65,18 +85,13 @@ void ofxiPhoneWebViewController::hideView(BOOL animated){
             }
             [_view release];
             [_view removeFromSuperview];
-            [_delegate release];
-        }];
-    }
-    else{
-        for(UIView *subview in [_view subviews]) {
-            //NSLog(@"subviews Count=%d",[[_view subviews]count]);
-            [subview release];
-            [subview removeFromSuperview];
+            bIsViewActive = false;
         }
-        [_view release];
-        [_view removeFromSuperview];
-        [_delegate release];
+        if(bIsDelegateActive) {
+            [_delegate release];
+            bIsDelegateActive = false;
+        }
+        
     }
     
 }
@@ -90,6 +105,8 @@ void ofxiPhoneWebViewController::setAutoRotation(bool _autoRotation){
 
 //--------------------------------------------------------------
 void ofxiPhoneWebViewController::setOrientation(ofOrientation orientation){
+    
+    if(!bIsViewActive) return;
     
     float rotation = 0;
     int screenWidth = ofGetWindowWidth();
@@ -109,7 +126,7 @@ void ofxiPhoneWebViewController::setOrientation(ofOrientation orientation){
     if(orientation == OFXIPHONE_ORIENTATION_LANDSCAPE_RIGHT) {
         rotation = -PI / 2.0;
     }
-    
+
     // Set thenchor point top-left and center
     //_view.layer.anchorPoint = CGPointMake(0.0, 0.0);
     //_view.center = CGPointMake(CGRectGetWidth(_view.bounds), 0.0);
@@ -154,7 +171,9 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL
     ///////////////////////////////////////////////////////////////////
     // Init view
     ///////////////////////////////////////////////////////////////////
-    _view = [[[UIView alloc] initWithFrame:frame] retain ];
+    _view = [[UIView alloc] initWithFrame:frame];
+    bIsViewActive = true;
+    
     // Resize properties
     _view.autoresizesSubviews = YES;
     _view.autoresizingMask = UIViewAutoresizingFlexibleRightMargin |

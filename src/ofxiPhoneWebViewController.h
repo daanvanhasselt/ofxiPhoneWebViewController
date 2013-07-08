@@ -71,7 +71,10 @@ public:
 
     void showView(int frameWidth, int frameHeight,  BOOL animated, BOOL addToolbar, BOOL transparent, BOOL scroll, BOOL useTransitionMoveIn);
     void hideView(BOOL animated);
-    void reOpenView(BOOL animated, NSString *newurl);
+    //void reOpenView(BOOL animated, NSString *newurl);
+    
+    bool bIsViewActive;
+    bool bIsDelegateActive;
     
     void setOrientation(ofOrientation orientation);
     
