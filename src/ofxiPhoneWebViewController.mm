@@ -184,6 +184,9 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL
     if(!transparent) {
         _view.backgroundColor = [UIColor whiteColor];
         _view.alpha = 1;
+    } else {
+        _view.backgroundColor = [UIColor blackColor];
+        _view.alpha = .75;
     }
     ///////////////////////////////////////////////////////////////////
     // Add toolbar with close button and title:
@@ -215,10 +218,10 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL
     _webView.delegate = _delegate;
     _webView.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     // Background
-    if(transparent) {
+    //if(transparent) {
         _webView.opaque = false;
         _webView.backgroundColor = [UIColor clearColor];
-    }
+    //}
     // Scrollable
     if(!scroll) {
         _webView.scrollView.scrollEnabled = NO;
