@@ -36,7 +36,7 @@ void ofxiPhoneWebViewController::showView(int frameWidth, int frameHeight, BOOL 
     if(animated){
         if(!useTransitionMoveIn) {
             CATransition *applicationLoadViewIn =[CATransition animation];
-            [applicationLoadViewIn setDuration:2.5];
+            [applicationLoadViewIn setDuration:4.5];
             [applicationLoadViewIn setType:kCATransitionReveal];
             [applicationLoadViewIn setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
             [[_view layer]addAnimation:applicationLoadViewIn forKey:kCATransitionReveal];
