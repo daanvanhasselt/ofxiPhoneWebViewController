@@ -19,7 +19,9 @@ typedef enum _ofxiPhoneWebViewState{
     ofxiPhoneWebViewStateUndefined,
     ofxiPhoneWebViewStateDidStartLoading,
     ofxiPhoneWebViewStateDidFinishLoading,
-    ofxiPhoneWebViewStateDidFailLoading
+    ofxiPhoneWebViewStateDidFailLoading,
+    ofxiPhoneWebViewCalledExternalFunction,
+    ofxiPhoneWebViewDidCloseWindow
 } ofxiPhoneWebViewState;
 
 class ofxiPhoneWebViewControllerEventArgs : public ofEventArgs
@@ -28,12 +30,14 @@ class ofxiPhoneWebViewControllerEventArgs : public ofEventArgs
     public:
     
         NSURL *url;
+        NSString *param;
         NSError *error;
         ofxiPhoneWebViewState state;
     
         ofxiPhoneWebViewControllerEventArgs()
         {
             url = nil;
+            param = nil;
             error = nil;
             state = ofxiPhoneWebViewStateUndefined;
         }
@@ -41,11 +45,20 @@ class ofxiPhoneWebViewControllerEventArgs : public ofEventArgs
         ofxiPhoneWebViewControllerEventArgs(NSURL *_url, ofxiPhoneWebViewState _state, NSError *_error)
         {
             url = _url;
+            param = nil;
             state = _state;
             error = _error;
         }
     
-}; 
+        ofxiPhoneWebViewControllerEventArgs(NSString *_param, ofxiPhoneWebViewState _state, NSError *_error)
+        {
+            url = nil;
+            param = _param;
+            state = _state;
+            error = _error;
+        }
+    
+};
 
 ///-------------------------------------------------
 /// c++ OF class
@@ -56,12 +69,16 @@ class ofxiPhoneWebViewController {
     
 public:
 
-    void showView(int frameWidth, int frameHeight,  BOOL animated, BOOL addToolbar, BOOL transparent, BOOL scroll);
+    void showView(int frameWidth, int frameHeight,  BOOL animated, BOOL addToolbar, BOOL transparent, BOOL scroll, BOOL useTransitionMoveIn);
     void hideView(BOOL animated);
+    //void reOpenView(BOOL animated, NSString *newurl);
+    
+    bool bIsViewActive;
+    bool bIsDelegateActive;
     
     void setOrientation(ofOrientation orientation);
     
-    void loadNewUrl(NSURL *url);
+    void loadNewUrl(NSString *url);
     void loadLocalFile(string & filename);
     
     ofEvent<ofxiPhoneWebViewControllerEventArgs> event;
@@ -75,6 +92,9 @@ public:
     void didStartLoad();
     void didFinishLoad();
     void didFailLoad(NSError *error);
+    void didCloseWindow();
+    
+    void callExternalFunction(string &functionName, NSString *param);
     
 private:
     
@@ -99,3 +119,4 @@ private:
 
 @property (nonatomic, assign) ofxiPhoneWebViewController *delegate;
 @end
+

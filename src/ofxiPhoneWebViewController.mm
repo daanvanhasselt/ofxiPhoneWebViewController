@@ -15,11 +15,12 @@
 #pragma mark - C++ OF class
 
 //--------------------------------------------------------------
-void ofxiPhoneWebViewController::showView(int frameWidth, int frameHeight, BOOL animated, BOOL addToolbar, BOOL transparent, BOOL scroll) {
+void ofxiPhoneWebViewController::showView(int frameWidth, int frameHeight, BOOL animated, BOOL addToolbar, BOOL transparent, BOOL scroll, BOOL useTransitionMoveIn) {
     
     // init delegate
     _delegate = [[ofxiPhoneWebViewDelegate alloc] init];
     _delegate.delegate = this;
+    bIsDelegateActive = true;
     
     // create the view
     if(isRetina()) {
@@ -31,36 +32,66 @@ void ofxiPhoneWebViewController::showView(int frameWidth, int frameHeight, BOOL 
   
     // add to glView
     [ofxiPhoneGetGLParentView() addSubview:_view];
-       
+    
     if(animated){
-        CATransition *applicationLoadViewIn =[CATransition animation];
-        [applicationLoadViewIn setDuration:2.0];
-        [applicationLoadViewIn setType:kCATransitionReveal];
-        [applicationLoadViewIn setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
-        [[_view layer]addAnimation:applicationLoadViewIn forKey:kCATransitionReveal];
+        if(!useTransitionMoveIn) {
+            CATransition *applicationLoadViewIn =[CATransition animation];
+            [applicationLoadViewIn setDuration:4.5];
+            [applicationLoadViewIn setType:kCATransitionReveal];
+            [applicationLoadViewIn setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn]];
+            [[_view layer]addAnimation:applicationLoadViewIn forKey:kCATransitionReveal];
+        } else {
+            CATransition *applicationLoadViewIn =[CATransition animation];
+            [applicationLoadViewIn setDuration:1.0];
+            [applicationLoadViewIn setType:kCATransitionMoveIn];
+            [applicationLoadViewIn setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut]];
+            [[_view layer]addAnimation:applicationLoadViewIn forKey:kCATransitionMoveIn];
+        }
     }
-
+    
 }
 
 //--------------------------------------------------------------
 void ofxiPhoneWebViewController::hideView(BOOL animated){
+    
     if(animated){
         [UIView animateWithDuration:0.5 animations:^{
             _view.alpha = 0;
             // TODO: Choose between slide view & alpha.
             //_view.transform = CGAffineTransformMakeTranslation( _view.bounds.size.width/2, _view.bounds.size.height);      // transform down
         } completion:^(BOOL finished) {
-            [_view removeFromSuperview];
-            [_view release];
-            [_webView release];
-            [_delegate release];
+            if(bIsViewActive) {
+                for(UIView *subview in [_view subviews]) {
+                    //NSLog(@"subviews Count=%d",[[_view subviews]count]);
+                    [subview release];
+                    [subview removeFromSuperview];
+                }
+                [_view release];
+                [_view removeFromSuperview];
+                bIsViewActive = false;
+            }
+            if(bIsDelegateActive) {
+                [_delegate release];
+                bIsDelegateActive = false;
+            }
         }];
     }
     else{
-        [_view removeFromSuperview];
-        [_view release];
-        [_webView release];
-        [_delegate release];
+        if(bIsViewActive) {
+            for(UIView *subview in [_view subviews]) {
+                //NSLog(@"subviews Count=%d",[[_view subviews]count]);
+                [subview release];
+                [subview removeFromSuperview];
+            }
+            [_view release];
+            [_view removeFromSuperview];
+            bIsViewActive = false;
+        }
+        if(bIsDelegateActive) {
+            [_delegate release];
+            bIsDelegateActive = false;
+        }
+        
     }
     
 }
@@ -74,6 +105,8 @@ void ofxiPhoneWebViewController::setAutoRotation(bool _autoRotation){
 
 //--------------------------------------------------------------
 void ofxiPhoneWebViewController::setOrientation(ofOrientation orientation){
+    
+    if(!bIsViewActive) return;
     
     float rotation = 0;
     int screenWidth = ofGetWindowWidth();
@@ -93,7 +126,7 @@ void ofxiPhoneWebViewController::setOrientation(ofOrientation orientation){
     if(orientation == OFXIPHONE_ORIENTATION_LANDSCAPE_RIGHT) {
         rotation = -PI / 2.0;
     }
-    
+
     // Set thenchor point top-left and center
     //_view.layer.anchorPoint = CGPointMake(0.0, 0.0);
     //_view.center = CGPointMake(CGRectGetWidth(_view.bounds), 0.0);
@@ -107,10 +140,10 @@ void ofxiPhoneWebViewController::setOrientation(ofOrientation orientation){
 }
 
 //--------------------------------------------------------------
-void ofxiPhoneWebViewController::loadNewUrl(NSURL *url) {
+void ofxiPhoneWebViewController::loadNewUrl(NSString *url) {
     
     [[NSURLCache sharedURLCache] removeAllCachedResponses];
-    [_webView loadRequest:[NSURLRequest requestWithURL:url]];
+    [_webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:url]]];
     
 }
 
@@ -120,7 +153,8 @@ void ofxiPhoneWebViewController::loadLocalFile(string & filename) {
     NSString *_filename = [NSString stringWithCString:filename.c_str() encoding:[NSString defaultCStringEncoding]];
     
     NSString *path = [[NSBundle mainBundle] bundlePath];
-    NSURL *baseURL = [NSURL fileURLWithPath:path];
+    NSString *directory_path = [path stringByAppendingString:@"/www"];
+    NSURL *baseURL = [NSURL fileURLWithPath:directory_path];
     
     NSString *htmlFile = [[NSBundle mainBundle] pathForResource:_filename ofType:@"html" inDirectory:@"www"];
         
@@ -138,6 +172,8 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL
     // Init view
     ///////////////////////////////////////////////////////////////////
     _view = [[UIView alloc] initWithFrame:frame];
+    bIsViewActive = true;
+    
     // Resize properties
     _view.autoresizesSubviews = YES;
     _view.autoresizingMask = UIViewAutoresizingFlexibleRightMargin |
@@ -147,7 +183,10 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL
     // Background:
     if(!transparent) {
         _view.backgroundColor = [UIColor whiteColor];
-        _view.alpha = 0.5;
+        _view.alpha = 1;
+    } else {
+        _view.backgroundColor = [UIColor blackColor];
+        _view.alpha = .75;
     }
     ///////////////////////////////////////////////////////////////////
     // Add toolbar with close button and title:
@@ -155,9 +194,13 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL
     if(withToolbar){
         UIToolbar *toolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, _view.bounds.size.width, 44)];
         UIBarButtonItem *spacer = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-        UIBarButtonItem *title = [[UIBarButtonItem alloc] initWithTitle:@"Browser" style:UIBarButtonItemStylePlain target:nil action:nil];
+        UIBarButtonItem *title = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:nil action:nil];
         UIBarButtonItem *closeButton = [[UIBarButtonItem alloc] initWithTitle:@"Close" style:UIBarButtonItemStyleDone target:_delegate action:@selector(closeButtonTapped)];
-        [toolbar setItems:[NSArray arrayWithObjects:spacer, title, spacer, closeButton, nil]];
+        NSMutableArray *items = [[NSMutableArray alloc] init];
+        [items addObject:[spacer autorelease]];
+        [items addObject:[title autorelease]];
+        [items addObject:[closeButton autorelease]];
+        [toolbar setItems:items];
         [toolbar setAutoresizesSubviews:YES];
         [toolbar setAutoresizingMask:
          UIViewAutoresizingFlexibleWidth ];
@@ -175,14 +218,17 @@ void ofxiPhoneWebViewController::createView(BOOL withToolbar, CGRect frame, BOOL
     _webView.delegate = _delegate;
     _webView.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     // Background
-    if(transparent) {
+    //if(transparent) {
         _webView.opaque = false;
         _webView.backgroundColor = [UIColor clearColor];
-    }
+    //}
     // Scrollable
     if(!scroll) {
         _webView.scrollView.scrollEnabled = NO;
         _webView.scrollView.bounces = NO;
+    } else {
+        _webView.scrollView.scrollEnabled = YES;
+        _webView.scrollView.bounces = YES;
     }
 
 }
@@ -232,6 +278,12 @@ bool ofxiPhoneWebViewController::isRetina(){
 #pragma mark Callbacks
 
 //--------------------------------------------------------------
+void ofxiPhoneWebViewController::didCloseWindow() {
+    ofxiPhoneWebViewControllerEventArgs args = ofxiPhoneWebViewControllerEventArgs(_webView.request.URL, ofxiPhoneWebViewDidCloseWindow, nil);
+    ofNotifyEvent(event, args, this);
+}
+
+//--------------------------------------------------------------
 void ofxiPhoneWebViewController::didStartLoad() {
     ofxiPhoneWebViewControllerEventArgs args = ofxiPhoneWebViewControllerEventArgs(_webView.request.URL, ofxiPhoneWebViewStateDidStartLoading, nil);
     ofNotifyEvent(event, args, this);
@@ -246,6 +298,12 @@ void ofxiPhoneWebViewController::didFinishLoad() {
 //--------------------------------------------------------------
 void ofxiPhoneWebViewController::didFailLoad(NSError *error) {
     ofxiPhoneWebViewControllerEventArgs args = ofxiPhoneWebViewControllerEventArgs(_webView.request.URL, ofxiPhoneWebViewStateDidFailLoading, error);
+    ofNotifyEvent(event, args, this);
+}
+
+//--------------------------------------------------------------
+void ofxiPhoneWebViewController::callExternalFunction(string &functionName, NSString *param) {
+    ofxiPhoneWebViewControllerEventArgs args = ofxiPhoneWebViewControllerEventArgs(param, ofxiPhoneWebViewCalledExternalFunction, nil);
     ofNotifyEvent(event, args, this);
 }
 
@@ -267,14 +325,17 @@ void ofxiPhoneWebViewController::didFailLoad(NSError *error) {
 //
 
 - (void)webViewDidStartLoad:(UIWebView *)webView {
+    if(delegate)
     delegate->didStartLoad();
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
+    if(delegate)
     delegate->didFinishLoad();
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
+    if(delegate)
     delegate->didFailLoad(error);
 }
 
@@ -286,6 +347,20 @@ void ofxiPhoneWebViewController::didFailLoad(NSError *error) {
         cout << [[request.URL host] UTF8String] << endl;
         if ([[request.URL host] isEqual:@"closeWindow"]) {
             delegate->hideView(YES);
+            delegate->didCloseWindow();
+        }
+        if ([[request.URL host] isEqual:@"openinbrowser"]) {
+            NSString *url = [request.URL query];
+            NSLog(@"%@", url);
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString: [[[NSString alloc] initWithString: url] autorelease] ]];
+        }
+        if ([[request.URL host] isEqual:@"callOFfunction"]) {
+            NSString *param = [request.URL query];
+            NSLog(@"%@", param);
+            // TODO: Pass function Name from html document.
+            //       This will allow to call diferent functions inside OF.
+            string fName = "default";
+            delegate->callExternalFunction(fName, param);
         }
         return NO; // Tells the webView not to load the URL
     }
